@@ -16,11 +16,11 @@ A Halloween-themed Chrome extension that displays a customizable countdown to yo
 - **Settings Sync** - Your preferences sync across devices via Chrome storage
 - **Live Preview** - See your countdown appearance before saving
 
-## Screenshots
+## Screenshot
 
 Click the extension icon to see your countdown:
 
-![Popup](store-assets/screenshots/screenshot-640x400.png)
+![Popup](assets/screenshot.png)
 
 ## Quick Start
 
