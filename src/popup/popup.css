@@ -1,33 +1,133 @@
+/* Spooky Countdown Timer - Popup Styles */
+
+/* Theme: Pumpkin Orange (Default) */
+.theme-pumpkin-orange {
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #16213e;
+  --accent: #ff6b35;
+  --text-primary: #ffffff;
+  --text-secondary: #b8b8b8;
+}
+
+/* Theme: Ghost White */
+.theme-ghost-white {
+  --bg-primary: #2d2d2d;
+  --bg-secondary: #3d3d3d;
+  --accent: #f0f0f0;
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+}
+
+/* Theme: Witch Purple */
+.theme-witch-purple {
+  --bg-primary: #1a0a2e;
+  --bg-secondary: #2d1b4e;
+  --accent: #9b59b6;
+  --text-primary: #ffffff;
+  --text-secondary: #d4b8e0;
+}
+
 body {
-  width: 300px;
-  min-height: 200px;
+  width: 320px;
+  min-height: 280px;
   margin: 0;
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .container {
-  padding: 20px;
+  padding: 24px 20px;
   text-align: center;
+  background: var(--bg-primary);
+  min-height: 280px;
+  box-sizing: border-box;
 }
 
-h1 {
-  color: #333;
-  margin-top: 0;
-  font-size: 24px;
+.event-name {
+  color: var(--accent);
+  margin: 0 0 20px 0;
+  font-size: 22px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-p {
-  color: #666;
-  margin: 10px 0;
+
+.countdown-display {
+  margin-bottom: 20px;
+}
+
+.countdown-digits {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.time-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg-secondary);
+  padding: 12px 10px;
+  border-radius: 8px;
+  min-width: 50px;
+}
+
+.digit {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.label {
+  font-size: 10px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  margin-top: 4px;
+  letter-spacing: 0.5px;
+}
+
+.status-message {
+  margin: 20px 0;
+  padding: 12px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border-left: 3px solid var(--accent);
+}
+
+#status-text {
+  color: var(--text-primary);
   font-size: 14px;
+  font-style: italic;
 }
 
-.tip {
-  font-size: 12px;
-  color: #999;
-  line-height: 1.5;
-  margin-top: 15px;
-  padding-top: 15px;
-  border-top: 1px solid #eee;
+#status-emoji {
+  margin-left: 8px;
+  font-size: 16px;
+}
+
+.edit-button {
+  background: var(--accent);
+  color: var(--bg-primary);
+  border: none;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.edit-button:hover {
+  opacity: 0.9;
+}
+
+.edit-button:active {
+  opacity: 0.8;
+}
+
+/* Hide seconds when disabled */
+.hide-seconds #seconds-unit {
+  display: none;
 }

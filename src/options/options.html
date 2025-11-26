@@ -4,18 +4,79 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="options.css">
-  <title>Extension Options</title>
+  <title>Spooky Countdown Timer - Options</title>
 </head>
 <body>
-  <div class="container">
-    <h1>Hello World Extension</h1>
-    <p>Configure your extension settings below.</p>
-    <div class="settings">
-      <h2>Settings</h2>
-      <label>
-        <input type="checkbox" id="enableFeature">
-        Enable awesome feature
-      </label>
+  <div id="options-container" class="container theme-pumpkin-orange">
+    <h1>🎃 Spooky Countdown Timer</h1>
+    <p class="subtitle">Configure your spooky countdown settings</p>
+
+    <form id="settings-form" class="settings-form">
+      <div class="form-group">
+        <label for="event-name">Event Name</label>
+        <input type="text" id="event-name" placeholder="Halloween" maxlength="50">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="target-date">Target Date</label>
+          <input type="date" id="target-date">
+        </div>
+        <div class="form-group">
+          <label for="target-time">Target Time</label>
+          <input type="time" id="target-time" value="00:00">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="theme-select">Theme</label>
+        <select id="theme-select">
+          <option value="pumpkin-orange">🎃 Pumpkin Orange</option>
+          <option value="ghost-white">👻 Ghost White</option>
+          <option value="witch-purple">🧙 Witch Purple</option>
+        </select>
+      </div>
+
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" id="show-seconds" checked>
+          <span>Show seconds in countdown</span>
+        </label>
+      </div>
+
+      <button type="submit" id="save-button" class="save-button">Save Settings</button>
+      <div id="save-confirmation" class="save-confirmation hidden">✓ Settings saved!</div>
+    </form>
+
+    <div class="preview-section">
+      <h2>Preview</h2>
+      <div id="preview-container" class="preview-container theme-pumpkin-orange">
+        <h3 id="preview-event-name" class="preview-event-name">Halloween</h3>
+        <div class="preview-countdown">
+          <div class="preview-digits">
+            <div class="preview-unit">
+              <span id="preview-days" class="preview-digit">00</span>
+              <span class="preview-label">days</span>
+            </div>
+            <div class="preview-unit">
+              <span id="preview-hours" class="preview-digit">00</span>
+              <span class="preview-label">hours</span>
+            </div>
+            <div class="preview-unit">
+              <span id="preview-minutes" class="preview-digit">00</span>
+              <span class="preview-label">min</span>
+            </div>
+            <div id="preview-seconds-unit" class="preview-unit">
+              <span id="preview-seconds" class="preview-digit">00</span>
+              <span class="preview-label">sec</span>
+            </div>
+          </div>
+        </div>
+        <div id="preview-status" class="preview-status">
+          <span id="preview-status-text">The spirits slumber...</span>
+          <span id="preview-status-emoji">🪦</span>
+        </div>
+      </div>
     </div>
   </div>
   <script src="options.js"></script>

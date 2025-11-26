@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Hello World Extension",
+  "name": "Spooky Countdown Timer",
   "version": "1.0.0",
-  "description": "A simple Hello World Chrome extension with TypeScript",
+  "description": "A Halloween-themed countdown timer extension. Track the time remaining until your spooky events with customizable themes and dynamic status messages.",
   "action": {
     "default_popup": "popup/popup.html",
     "default_icon": {

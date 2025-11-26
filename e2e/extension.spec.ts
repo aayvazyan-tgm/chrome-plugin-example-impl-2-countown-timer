@@ -1,100 +1,214 @@
 import { test, expect } from './fixtures';
-import { Page } from '@playwright/test';
 
-test.describe('Chrome Extension E2E Tests', () => {
-  test('should load extension popup', async ({ context, extensionId }) => {
-    // Navigate to popup
+test.describe('Spooky Countdown Timer - Popup E2E Tests', () => {
+  test('should display countdown elements correctly', async ({ context, extensionId }) => {
     const popup = await context.newPage();
     await popup.goto(`chrome-extension://${extensionId}/popup/popup.html`);
-
-    // Wait for popup to load
     await popup.waitForLoadState('networkidle');
 
-    // Check popup content
-    const heading = popup.locator('h1');
-    await expect(heading).toHaveText('Hello World');
+    // Verify countdown display elements are present
+    await expect(popup.locator('#event-name')).toBeVisible();
+    await expect(popup.locator('#days')).toBeVisible();
+    await expect(popup.locator('#hours')).toBeVisible();
+    await expect(popup.locator('#minutes')).toBeVisible();
+    await expect(popup.locator('#seconds')).toBeVisible();
 
-    // Check welcome message
-    const message = popup.locator('p').first();
-    await expect(message).toHaveText('Welcome to your Chrome Extension!');
+    // Verify status message area is present
+    await expect(popup.locator('#status-text')).toBeVisible();
+    await expect(popup.locator('#status-emoji')).toBeVisible();
+
+    // Verify Edit button is present
+    await expect(popup.locator('#edit-button')).toBeVisible();
+    await expect(popup.locator('#edit-button')).toHaveText('Edit');
   });
 
-  test('should open options page with settings', async ({ context, extensionId }) => {
-    // Navigate directly to options page
-    const optionsPage = await context.newPage();
-    await optionsPage.goto(`chrome-extension://${extensionId}/options/options.html`);
+  test('should display default event name when not configured', async ({
+    context,
+    extensionId,
+  }) => {
+    const popup = await context.newPage();
+    await popup.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+    await popup.waitForLoadState('networkidle');
 
-    // Wait for options page to load
+    // Default event name should be "Halloween"
+    const eventName = popup.locator('#event-name');
+    await expect(eventName).toHaveText('Halloween');
+  });
+
+  test('should show configure message when no target date is set', async ({
+    context,
+    extensionId,
+  }) => {
+    const popup = await context.newPage();
+    await popup.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+    await popup.waitForLoadState('networkidle');
+
+    // Without a configured date, should show placeholder values
+    const statusText = popup.locator('#status-text');
+    await expect(statusText).toHaveText('Configure your countdown');
+  });
+
+  test('should apply default pumpkin-orange theme', async ({ context, extensionId }) => {
+    const popup = await context.newPage();
+    await popup.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+    await popup.waitForLoadState('networkidle');
+
+    // Default theme should be pumpkin-orange
+    const container = popup.locator('#popup-container');
+    await expect(container).toHaveClass(/theme-pumpkin-orange/);
+  });
+
+  test('Edit button should open options page', async ({ context, extensionId }) => {
+    const popup = await context.newPage();
+    await popup.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+    await popup.waitForLoadState('networkidle');
+
+    // Click Edit button and wait for new page
+    const [optionsPage] = await Promise.all([
+      context.waitForEvent('page'),
+      popup.locator('#edit-button').click(),
+    ]);
+
+    // Verify options page opened
     await optionsPage.waitForLoadState('networkidle');
-
-    // Verify we're on the options page
     expect(optionsPage.url()).toContain('options/options.html');
-
-    // Check if heading is present
-    const heading = optionsPage.locator('h1');
-    await expect(heading).toHaveText('Hello World Extension');
-
-    // Verify the options page message
-    const message = optionsPage.locator('p').first();
-    await expect(message).toContainText('Configure your extension settings');
-
-    // Test settings interaction
-    const checkbox = optionsPage.locator('#enableFeature');
-    await expect(checkbox).toBeVisible();
-
-    // Toggle the checkbox
-    await checkbox.click();
-    const isChecked = await checkbox.isChecked();
-    expect(typeof isChecked).toBe('boolean');
   });
+});
 
-  test('should persist settings', async ({ context, extensionId }) => {
-    // Open options page
+test.describe('Spooky Countdown Timer - Options Page E2E Tests', () => {
+  test('should display all form inputs', async ({ context, extensionId }) => {
     const optionsPage = await context.newPage();
     await optionsPage.goto(`chrome-extension://${extensionId}/options/options.html`);
     await optionsPage.waitForLoadState('networkidle');
 
-    // Set checkbox to unchecked
-    const checkbox = optionsPage.locator('#enableFeature');
-    if (await checkbox.isChecked()) {
-      await checkbox.click();
-    }
+    // Verify event name input
+    await expect(optionsPage.locator('#event-name')).toBeVisible();
 
-    // Verify it's unchecked
-    await expect(checkbox).not.toBeChecked();
+    // Verify date and time pickers
+    await expect(optionsPage.locator('#target-date')).toBeVisible();
+    await expect(optionsPage.locator('#target-time')).toBeVisible();
+
+    // Verify theme dropdown
+    await expect(optionsPage.locator('#theme-select')).toBeVisible();
+
+    // Verify show seconds checkbox
+    await expect(optionsPage.locator('#show-seconds')).toBeVisible();
+
+    // Verify save button
+    await expect(optionsPage.locator('#save-button')).toBeVisible();
+    await expect(optionsPage.locator('#save-button')).toHaveText('Save Settings');
+  });
+
+  test('should have correct theme options in dropdown', async ({ context, extensionId }) => {
+    const optionsPage = await context.newPage();
+    await optionsPage.goto(`chrome-extension://${extensionId}/options/options.html`);
+    await optionsPage.waitForLoadState('networkidle');
+
+    const themeSelect = optionsPage.locator('#theme-select');
+
+    // Verify all three theme options exist
+    await expect(themeSelect.locator('option[value="pumpkin-orange"]')).toHaveCount(1);
+    await expect(themeSelect.locator('option[value="ghost-white"]')).toHaveCount(1);
+    await expect(themeSelect.locator('option[value="witch-purple"]')).toHaveCount(1);
+  });
+
+  test('should change preview theme when theme dropdown changes', async ({
+    context,
+    extensionId,
+  }) => {
+    const optionsPage = await context.newPage();
+    await optionsPage.goto(`chrome-extension://${extensionId}/options/options.html`);
+    await optionsPage.waitForLoadState('networkidle');
+
+    const previewContainer = optionsPage.locator('#preview-container');
+
+    // Default should be pumpkin-orange
+    await expect(previewContainer).toHaveClass(/theme-pumpkin-orange/);
+
+    // Change to ghost-white
+    await optionsPage.locator('#theme-select').selectOption('ghost-white');
+    await expect(previewContainer).toHaveClass(/theme-ghost-white/);
+
+    // Change to witch-purple
+    await optionsPage.locator('#theme-select').selectOption('witch-purple');
+    await expect(previewContainer).toHaveClass(/theme-witch-purple/);
+  });
+
+  test('should show save confirmation when settings are saved', async ({
+    context,
+    extensionId,
+  }) => {
+    const optionsPage = await context.newPage();
+    await optionsPage.goto(`chrome-extension://${extensionId}/options/options.html`);
+    await optionsPage.waitForLoadState('networkidle');
+
+    // Confirmation should be hidden initially
+    const saveConfirmation = optionsPage.locator('#save-confirmation');
+    await expect(saveConfirmation).toHaveClass(/hidden/);
+
+    // Click save button
+    await optionsPage.locator('#save-button').click();
+
+    // Confirmation should be visible
+    await expect(saveConfirmation).not.toHaveClass(/hidden/);
+    await expect(saveConfirmation).toContainText('Settings saved');
+  });
+
+  test('should persist settings across page reload', async ({ context, extensionId }) => {
+    const optionsPage = await context.newPage();
+    await optionsPage.goto(`chrome-extension://${extensionId}/options/options.html`);
+    await optionsPage.waitForLoadState('networkidle');
+
+    // Set custom values
+    await optionsPage.locator('#event-name').fill('Spooky Party');
+    await optionsPage.locator('#target-date').fill('2025-10-31');
+    await optionsPage.locator('#target-time').fill('20:00');
+    await optionsPage.locator('#theme-select').selectOption('witch-purple');
+    await optionsPage.locator('#show-seconds').uncheck();
+
+    // Save settings
+    await optionsPage.locator('#save-button').click();
+
+    // Wait for save confirmation
+    await expect(optionsPage.locator('#save-confirmation')).not.toHaveClass(/hidden/);
 
     // Reload page
     await optionsPage.reload();
     await optionsPage.waitForLoadState('networkidle');
 
-    // Should still be unchecked (if storage is working)
-    // Note: This might not work in test environment without proper chrome.storage mock
+    // Verify settings persisted
+    await expect(optionsPage.locator('#event-name')).toHaveValue('Spooky Party');
+    await expect(optionsPage.locator('#target-date')).toHaveValue('2025-10-31');
+    await expect(optionsPage.locator('#target-time')).toHaveValue('20:00');
+    await expect(optionsPage.locator('#theme-select')).toHaveValue('witch-purple');
+    await expect(optionsPage.locator('#show-seconds')).not.toBeChecked();
   });
 
-  test('should handle navigation between popup and options pages', async ({
-    context,
-    extensionId,
-  }) => {
-    // Open popup
-    const popup = await context.newPage();
-    await popup.goto(`chrome-extension://${extensionId}/popup/popup.html`);
-    await popup.waitForLoadState('networkidle');
-
-    // Verify popup loaded
-    const popupHeading = popup.locator('h1');
-    await expect(popupHeading).toHaveText('Hello World');
-
-    // Open options page in new tab
+  test('should update preview event name when input changes', async ({ context, extensionId }) => {
     const optionsPage = await context.newPage();
     await optionsPage.goto(`chrome-extension://${extensionId}/options/options.html`);
     await optionsPage.waitForLoadState('networkidle');
 
-    // Verify options page loaded
-    const optionsHeading = optionsPage.locator('h1');
-    await expect(optionsHeading).toHaveText('Hello World Extension');
+    // Type a custom event name
+    await optionsPage.locator('#event-name').fill('My Spooky Event');
 
-    // Both pages should be accessible
-    expect(popup.url()).toContain('popup/popup.html');
-    expect(optionsPage.url()).toContain('options/options.html');
+    // Preview should update
+    await expect(optionsPage.locator('#preview-event-name')).toHaveText('My Spooky Event');
+  });
+
+  test('should display preview section', async ({ context, extensionId }) => {
+    const optionsPage = await context.newPage();
+    await optionsPage.goto(`chrome-extension://${extensionId}/options/options.html`);
+    await optionsPage.waitForLoadState('networkidle');
+
+    // Verify preview elements are present
+    await expect(optionsPage.locator('#preview-container')).toBeVisible();
+    await expect(optionsPage.locator('#preview-event-name')).toBeVisible();
+    await expect(optionsPage.locator('#preview-days')).toBeVisible();
+    await expect(optionsPage.locator('#preview-hours')).toBeVisible();
+    await expect(optionsPage.locator('#preview-minutes')).toBeVisible();
+    await expect(optionsPage.locator('#preview-seconds')).toBeVisible();
+    await expect(optionsPage.locator('#preview-status-text')).toBeVisible();
+    await expect(optionsPage.locator('#preview-status-emoji')).toBeVisible();
   });
 });
